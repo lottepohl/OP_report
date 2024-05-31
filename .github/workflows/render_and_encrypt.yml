@@ -38,6 +38,20 @@ jobs:
           R -e "install.packages('kableExtra')"
           R -e "install.packages('flexdashboard')"
           R -e "remotes::install_local('encryptedRmd')"
+          R -e "remotes::install_github('inbo/etn')"
+          R -e "remotes::install_github('lifewatch/mregions2')"
+          R -e "install.packages('readr')"
+          R -e "install.packages('lubridate')"
+          R -e "install.packages('sf')"
+          R -e "install.packages('tidyr')"
+          R -e "install.packages('leaflet')"
+          R -e "install.packages('leafem')"
+          R -e "install.packages('leaflet.extras')"
+          R -e "install.packages('ggplot2')"
+          R -e "install.packages('plotly')"
+          R -e "install.packages('scico')"
+          R -e "install.packages('DBI')"
+          R -e "install.packages('RPostgreSQL')"
 
       - name: Render and Encrypt
         run: Rscript render_and_encrypt.R
