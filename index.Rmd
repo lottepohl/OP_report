@@ -5,13 +5,105 @@ output:
     orientation: columns
     vertical_layout: fill
 ---
+  
+```{r setup, include=FALSE, echo = F}
+# rm(list = ls())
 
-```{r setup, include=FALSE}
+# fundamentals
+# library(devtools)
+# devtools::install_github("lifewatch/mregions2")
 library(flexdashboard)
+library(etn)
 library(knitr)
-library(kableExtra)
-```
+# library(shiny)
+library(mregions2)
 
+# data wrangling
+library(readr)
+library(lubridate)
+library(dplyr)
+library(utils)
+library(sf)
+library(tidyr)
+
+# maps
+library(leaflet)
+library(leafem)
+library(leaflet.extras)
+
+# plotting and tables
+# library(DT) # for interactive tables
+library(ggplot2)
+library(kableExtra)
+library(plotly)
+library(scico) #colour palettes
+library(gridExtra)
+
+# SQL queries
+library(DBI)
+library(RPostgreSQL)
+
+# functions
+save_data <- function(data, folder = getwd()){
+  base::saveRDS(data, file = file.path(folder, paste0(deparse(substitute(data)), ".rds")))
+}
+
+load_data <- function(filestring, folder = getwd()){
+  data <- base::readRDS(file = file.path(folder, paste0(filestring, ".rds")))
+  return(data)
+}
+
+# folder <- file.path(getwd(), 'Open_protocol') # when not knitting
+folder <- file.path(getwd(), "data") # when knitting
+
+# DATABASE CONNECTIONS
+
+# ETN database connection
+con <- etn::connect_to_etn(Sys.getenv("userid"), Sys.getenv("pwd"))
+
+# OP database connection
+  pgdrv <- dbDriver(drvName = "PostgreSQL")
+  con_OPdb <-DBI::dbConnect(pgdrv,
+                     dbname="open_protocol",
+                     host="pgetn.vliz.be", 
+                     port=5432,
+                     user = Sys.getenv("userid"),
+                     password = Sys.getenv("pwd"))
+
+# EEZs
+# if(file.exists(file.path(folder,'EEZs.rds'))){
+  if(file.exists(file.path(folder, 'EEZs.rds'))){
+  EEZs <- load_data("EEZs", folder) #, folder) #only when not knitting
+  mediterranean <- load_data("mediterranean", folder)
+  greater_north_sea <- load_data("greater_north_sea", folder)
+  baltic <- load_data("baltic", folder)
+} else{
+Dutch_EEZ <-  mregions2::gaz_search(5668) %>% mregions2::gaz_geometry()
+BPNS <- mregions2::gaz_search(3293) %>% mregions2::gaz_geometry()
+French_EEZ <- mregions2::gaz_search(5677) %>% mregions2::gaz_geometry()
+UK_EEZ <- mregions2::gaz_search(5696) %>% mregions2::gaz_geometry()
+mediterranean <- mregions2::gaz_search(8552) %>% mregions2::gaz_geometry() %>%
+  dplyr::select(MRGID, placeType, preferredGazetteerName, the_geom) %>% sf::st_make_valid()
+# leaflet() %>% addTiles() %>% addPolygons(data = mediterranean) # finally works
+greater_north_sea <- mregions2::gaz_search(36317) %>% mregions2::gaz_geometry() %>%
+  dplyr::select(MRGID, placeType, preferredGazetteerName, the_geom) %>% sf::st_make_valid()
+baltic <- mregions2::gaz_search(8538) %>% mregions2::gaz_geometry() %>%
+  dplyr::select(MRGID, placeType, preferredGazetteerName, the_geom) %>% sf::st_make_valid()
+# leaflet() %>% addTiles() %>% addPolygons(data = baltic)
+
+EEZs <- rbind(Dutch_EEZ, BPNS, French_EEZ, UK_EEZ)
+basins <- rbind(mediterranean, greater_north_sea, baltic)
+
+save_data(mediterranean, folder)
+save_data(greater_north_sea, folder)
+save_data(baltic, folder)
+save_data(EEZs, folder = folder) 
+
+rm(Dutch_EEZ, BPNS, French_EEZ, UK_EEZ)
+rm(mediterranean, greater_north_sea, baltic)
+}
+
+```
 Column {data-width=650}
 -----------------------------------------------------------------------
 
