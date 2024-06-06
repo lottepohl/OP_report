@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Renviron
+docs
+inst/doc
+README_cache
+vignettes/articles/mregions2-rdf_cache/*
+vignettes/mregions2_cache/*
