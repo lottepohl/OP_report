@@ -36,6 +36,7 @@ jobs:
           R_LIBS_USER: ${{ env.R_LIBS_USER }}
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
+          echo "options(repos = c(CRAN = 'https://cloud.r-project.org'))" >> .Rprofile
           echo "Sys.setenv(GITHUB_PAT = Sys.getenv('GH_PAT'))" >> .Rprofile
           R -e "install.packages('remotes')"
           R -e "install.packages('sodium')"
@@ -70,3 +71,80 @@ jobs:
           git add docs/index.html
           git commit -m 'Update encrypted HTML'
           git push
+
+
+
+# name: Render and Encrypt Rmd Weekly
+# 
+# on:
+#   schedule:
+#     - cron: '0 0 * * 0'
+#   workflow_dispatch:
+# 
+# permissions:
+#   contents: write
+# 
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+# 
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
+# 
+#       - name: Install system dependencies
+#         run: |
+#           sudo apt-get update
+#           sudo apt-get install -y libsodium-dev pandoc
+# 
+#       - name: Set up R
+#         uses: r-lib/actions/setup-r@v2
+# 
+#       - name: Cache R packages
+#         uses: actions/cache@v3
+#         with:
+#           path: ${{ env.R_LIBS_USER }}
+#           key: ${{ runner.os }}-r-${{ hashFiles('**/renv.lock') }}
+#           restore-keys: ${{ runner.os }}-r-
+# 
+#       - name: Install R packages
+#         env:
+#           R_LIBS_USER: ${{ env.R_LIBS_USER }}
+#           GH_PAT: ${{ secrets.GH_PAT }}
+#         run: |
+#           echo "Sys.setenv(GITHUB_PAT = Sys.getenv('GH_PAT'))" >> .Rprofile
+#           R -e "install.packages('remotes')"
+#           R -e "install.packages('sodium')"
+#           R -e "install.packages('kableExtra')"
+#           R -e "install.packages('flexdashboard')"
+#           R -e "remotes::install_local('encryptedRmd')"
+#           R -e "remotes::install_github('inbo/etn')"
+#           R -e "remotes::install_github('lifewatch/mregions2')"
+#           R -e "install.packages('readr')"
+#           R -e "install.packages('lubridate')"
+#           R -e "install.packages('sf')"
+#           R -e "install.packages('tidyr')"
+#           R -e "install.packages('leaflet')"
+#           R -e "install.packages('leafem')"
+#           R -e "install.packages('leaflet.extras')"
+#           R -e "install.packages('ggplot2')"
+#           R -e "install.packages('plotly')"
+#           R -e "install.packages('scico')"
+#           R -e "install.packages('DBI')"
+#           R -e "install.packages('RPostgreSQL')"
+# 
+#       - name: Render and Encrypt
+#         run: Rscript render_and_encrypt.R
+#         env:
+#           PW_HTML_ENCRYPT: ${{ secrets.PW_HTML_ENCRYPT }}
+#           GH_PAT: ${{ secrets.GH_PAT }}
+# 
+#       - name: Commit and push encrypted file
+#         run: |
+#           git config --global user.name 'github-actions[bot]'
+#           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+#           git add docs/index.html
+#           git commit -m 'Update encrypted HTML'
+#           git push
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
