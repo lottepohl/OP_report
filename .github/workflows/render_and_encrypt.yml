@@ -32,8 +32,11 @@ jobs:
           restore-keys: ${{ runner.os }}-r-
 
       - name: Install R packages
+        env:
+          R_LIBS_USER: ${{ env.R_LIBS_USER }}
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          R -e "install.packages('remotes')"
+          echo "Sys.setenv(GITHUB_PAT = Sys.getenv('GH_PAT'))" >> .Rprofile
           R -e "install.packages('remotes')"
           R -e "install.packages('sodium')"
           R -e "install.packages('kableExtra')"
@@ -67,5 +70,3 @@ jobs:
           git add docs/index.html
           git commit -m 'Update encrypted HTML'
           git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
