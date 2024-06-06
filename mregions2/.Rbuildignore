@@ -1,0 +1,17 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^README\.Rmd$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^\./README_cache$
+^codemeta\.json$
+^README_cache
+^vignettes/articles$
+^CODE_OF_CONDUCT\.md$
+^test/testthat/*$
+^vignettes/mregions2_cache$
+^real-tests$
+^data-raw$
